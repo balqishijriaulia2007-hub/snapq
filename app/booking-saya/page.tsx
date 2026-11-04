@@ -18,11 +18,16 @@ type Item = {
   nomor: number;
   di_depan: number;
   nomor_berjalan: number | null;
+  batas_bayar: string;
 };
 
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 const jam = (m: number) =>
   `${String(Math.floor(m / 60)).padStart(2, "0")}.${String(m % 60).padStart(2, "0")}`;
+const jamIso = (iso: string) =>
+  new Date(iso)
+    .toLocaleTimeString("id-ID", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+    .replace(":", ".");
 
 const STATUS: Record<string, { label: string; warna: string }> = {
   menunggu_pembayaran: { label: "Menunggu pembayaran", warna: "bg-amber-100 text-amber-700" },
@@ -32,11 +37,21 @@ const STATUS: Record<string, { label: string; warna: string }> = {
   tidak_hadir: { label: "Tidak hadir", warna: "bg-red-100 text-red-600" },
 };
 
+const METODE = [
+  { kode: "qris", label: "QRIS", ikon: "📱" },
+  { kode: "transfer", label: "Transfer Bank", ikon: "🏦" },
+  { kode: "e_wallet", label: "E-Wallet", ikon: "👛" },
+];
+
 export default function BookingSaya() {
   const router = useRouter();
   const [data, setData] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [pesan, setPesan] = useState("");
+  const [bayarId, setBayarId] = useState<string | null>(null);
+  const [metode, setMetode] = useState("qris");
+  const [memproses, setMemproses] = useState(false);
+  const [pesanBayar, setPesanBayar] = useState("");
 
   const muat = useCallback(async () => {
     const { data: user } = await supabase.auth.getUser();
@@ -58,6 +73,19 @@ export default function BookingSaya() {
     const t = setInterval(muat, 5000);
     return () => clearInterval(t);
   }, [muat]);
+
+  async function bayar(id: string) {
+    setMemproses(true);
+    setPesanBayar("");
+    const { error } = await supabase.rpc("bayar_booking", { p_booking: id, p_metode: metode });
+    setMemproses(false);
+    if (error) {
+      setPesanBayar(error.message);
+      return;
+    }
+    setBayarId(null);
+    muat();
+  }
 
   return (
     <main className="min-h-screen bg-linear-to-br from-indigo-100 via-purple-50 to-pink-100 p-4 sm:p-8">
@@ -93,6 +121,7 @@ export default function BookingSaya() {
           {data.map((b) => {
             const s = STATUS[b.status] ?? { label: b.status, warna: "bg-gray-100 text-gray-600" };
             const aktif = ["menunggu_pembayaran", "lunas", "berlangsung"].includes(b.status);
+            const belumBayar = b.status === "menunggu_pembayaran";
             return (
               <div key={b.id} className="overflow-hidden rounded-2xl bg-white shadow-lg">
                 <div className="flex items-center justify-between bg-linear-to-r from-indigo-600 to-purple-600 px-6 py-4 text-white">
@@ -128,6 +157,44 @@ export default function BookingSaya() {
                       <p>
                         Antrean di depanmu: <span className="font-bold">{b.di_depan}</span> sesi
                       </p>
+                    </div>
+                  )}
+
+                  {belumBayar && bayarId !== b.id && (
+                    <div className="mt-3">
+                      <p className="mb-2 text-xs text-amber-700">Bayar sebelum pukul {jamIso(b.batas_bayar)}, atau booking otomatis dibatalkan.</p>
+                      <button onClick={() => { setBayarId(b.id); setPesanBayar(""); }}
+                        className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white shadow hover:bg-indigo-700">
+                        Bayar Sekarang
+                      </button>
+                    </div>
+                  )}
+
+                  {belumBayar && bayarId === b.id && (
+                    <div className="mt-3 space-y-3 rounded-xl border-2 border-indigo-200 p-4">
+                      <p className="font-semibold text-gray-900">Pilih metode pembayaran</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {METODE.map((m) => (
+                          <button key={m.kode} onClick={() => setMetode(m.kode)}
+                            className={`rounded-xl border-2 p-3 text-center text-xs font-semibold ${metode === m.kode ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-gray-200 text-gray-700"}`}>
+                            <span className="block text-2xl">{m.ikon}</span>
+                            {m.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-700">
+                        Mode simulasi: tidak ada uang sungguhan yang dipotong.
+                      </p>
+                      {pesanBayar && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{pesanBayar}</p>}
+                      <div className="flex gap-2">
+                        <button onClick={() => setBayarId(null)} className="w-1/3 rounded-xl bg-gray-100 py-3 font-semibold text-gray-700 hover:bg-gray-200">
+                          Batal
+                        </button>
+                        <button disabled={memproses} onClick={() => bayar(b.id)}
+                          className="w-2/3 rounded-xl bg-emerald-600 py-3 font-semibold text-white shadow hover:bg-emerald-700 disabled:opacity-60">
+                          {memproses ? "Memproses..." : `Bayar ${rupiah(b.total_harga)}`}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
