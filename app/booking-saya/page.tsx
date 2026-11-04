@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { unduhTiket } from "@/lib/tiket";
  
 type Item = {
   id: string;
@@ -209,12 +208,12 @@ export default function BookingSaya() {
                   )}
  
                   {(b.status === "lunas" || b.status === "berlangsung") && (
-                    <button
-                      onClick={() => unduhTiket(b)}
-                      className="mt-3 w-full rounded-xl bg-emerald-600 py-3 font-semibold text-white shadow hover:bg-emerald-700"
+                    <Link
+                      href={`/tiket/${b.id}`}
+                      className="mt-3 block w-full rounded-xl bg-emerald-600 py-3 text-center font-semibold text-white shadow hover:bg-emerald-700"
                     >
-                      Unduh Tiket PDF
-                    </button>
+                      🎫 Lihat Tiket
+                    </Link>
                   )}
  
                   {belumBayar && bayarId !== b.id && (
