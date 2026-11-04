@@ -37,5 +37,6 @@ export default function Akun() {
           Keluar
         </button>
       </div>
+      </AuthCard>
   );
 }

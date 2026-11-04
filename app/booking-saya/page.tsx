@@ -28,6 +28,10 @@ const jamIso = (iso: string) =>
   new Date(iso)
     .toLocaleTimeString("id-ID", { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
     .replace(":", ".");
+const vaDari = (id: string) => {
+  const d = "8808" + id.replace(/\D/g, "").padEnd(12, "0").slice(0, 12);
+  return d.match(/.{1,4}/g)?.join(" ") ?? d;
+};
 
 const STATUS: Record<string, { label: string; warna: string }> = {
   menunggu_pembayaran: { label: "Menunggu pembayaran", warna: "bg-amber-100 text-amber-700" },
@@ -43,6 +47,33 @@ const METODE = [
   { kode: "e_wallet", label: "E-Wallet", ikon: "👛" },
 ];
 
+const EWALLET = [
+  "GoPay", "OVO", "DANA", "ShopeePay", "LinkAja",
+  "Sakuku (BCA)", "Jenius Pay", "i.saku", "DOKU Wallet", "AstraPay",
+];
+
+const BANK = [
+  "Bank Mandiri", "Bank BRI", "Bank BNI", "Bank BTN", "Bank Syariah Indonesia (BSI)",
+  "Bank BCA", "Bank CIMB Niaga", "Bank Danamon", "Bank Permata", "Bank OCBC",
+  "Bank Panin", "Bank Maybank Indonesia", "Bank UOB Indonesia", "Bank Mega", "Bank BTPN",
+  "Bank Sinarmas", "KB Bank (Bukopin)", "Bank Mayapada", "Bank Victoria", "Bank Artha Graha",
+  "Bank China Construction Bank Indonesia", "Bank ICBC Indonesia", "Bank Woori Saudara",
+  "Bank Shinhan Indonesia", "Bank QNB Indonesia", "Bank Capital Indonesia", "Bank Index Selindo",
+  "Bank MNC Internasional", "Bank Ganesha", "Bank JTrust Indonesia", "Bank Bumi Arta",
+  "Bank Mestika Dharma", "Bank Nationalnobu", "Bank Oke Indonesia", "Bank Resona Perdania",
+  "Bank SBI Indonesia", "Bank DBS Indonesia", "HSBC Indonesia", "Standard Chartered Indonesia",
+  "Bank Mizuho Indonesia", "Bank Sumitomo Mitsui Indonesia (SMBC)",
+  "Bank Jago", "SeaBank", "Bank Neo Commerce", "blu by BCA Digital", "Allo Bank",
+  "Bank Raya Indonesia", "Krom Bank", "Superbank", "Bank Amar Indonesia",
+  "Bank Muamalat", "Bank Mega Syariah", "Bank Panin Dubai Syariah", "BCA Syariah",
+  "BTPN Syariah", "Bank Victoria Syariah", "Bank BJB Syariah", "Bank Aladin Syariah",
+  "Bank DKI", "Bank BJB", "Bank Jateng", "Bank Jatim", "Bank BPD DIY", "Bank Sumut",
+  "Bank Nagari", "Bank Riau Kepri Syariah", "Bank Sumsel Babel", "Bank Lampung",
+  "Bank Kalbar", "Bank Kalsel", "Bank Kaltimtara", "Bank Kalteng", "Bank Sulselbar",
+  "Bank SulutGo", "Bank Sultra", "Bank BPD Bali", "Bank NTB Syariah", "Bank NTT",
+  "Bank Maluku Malut", "Bank Papua", "Bank Jambi", "Bank Bengkulu", "Bank Aceh Syariah",
+];
+
 export default function BookingSaya() {
   const router = useRouter();
   const [data, setData] = useState<Item[]>([]);
@@ -50,6 +81,8 @@ export default function BookingSaya() {
   const [pesan, setPesan] = useState("");
   const [bayarId, setBayarId] = useState<string | null>(null);
   const [metode, setMetode] = useState("qris");
+  const [channel, setChannel] = useState("");
+  const [cari, setCari] = useState("");
   const [memproses, setMemproses] = useState(false);
   const [pesanBayar, setPesanBayar] = useState("");
 
@@ -74,10 +107,21 @@ export default function BookingSaya() {
     return () => clearInterval(t);
   }, [muat]);
 
+  function gantiMetode(kode: string) {
+    setMetode(kode);
+    setChannel("");
+    setCari("");
+    setPesanBayar("");
+  }
+
   async function bayar(id: string) {
     setMemproses(true);
     setPesanBayar("");
-    const { error } = await supabase.rpc("bayar_booking", { p_booking: id, p_metode: metode });
+    const { error } = await supabase.rpc("bayar_booking", {
+      p_booking: id,
+      p_metode: metode,
+      p_channel: metode === "qris" ? null : channel,
+    });
     setMemproses(false);
     if (error) {
       setPesanBayar(error.message);
@@ -86,6 +130,9 @@ export default function BookingSaya() {
     setBayarId(null);
     muat();
   }
+
+  const bankTampil = BANK.filter((b) => b.toLowerCase().includes(cari.trim().toLowerCase()));
+  const siapBayar = metode === "qris" || channel !== "";
 
   return (
     <main className="min-h-screen bg-linear-to-br from-indigo-100 via-purple-50 to-pink-100 p-4 sm:p-8">
@@ -163,7 +210,7 @@ export default function BookingSaya() {
                   {belumBayar && bayarId !== b.id && (
                     <div className="mt-3">
                       <p className="mb-2 text-xs text-amber-700">Bayar sebelum pukul {jamIso(b.batas_bayar)}, atau booking otomatis dibatalkan.</p>
-                      <button onClick={() => { setBayarId(b.id); setPesanBayar(""); }}
+                      <button onClick={() => { setBayarId(b.id); gantiMetode("qris"); }}
                         className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white shadow hover:bg-indigo-700">
                         Bayar Sekarang
                       </button>
@@ -175,13 +222,71 @@ export default function BookingSaya() {
                       <p className="font-semibold text-gray-900">Pilih metode pembayaran</p>
                       <div className="grid grid-cols-3 gap-2">
                         {METODE.map((m) => (
-                          <button key={m.kode} onClick={() => setMetode(m.kode)}
+                          <button key={m.kode} onClick={() => gantiMetode(m.kode)}
                             className={`rounded-xl border-2 p-3 text-center text-xs font-semibold ${metode === m.kode ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-gray-200 text-gray-700"}`}>
                             <span className="block text-2xl">{m.ikon}</span>
                             {m.label}
                           </button>
                         ))}
                       </div>
+
+                      {metode === "qris" && (
+                        <div className="rounded-xl bg-gray-50 p-4 text-center">
+                          <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-5xl">
+                            ▦
+                          </div>
+                          <p className="mt-2 text-xs text-gray-500">QR simulasi. Scan lewat aplikasi pembayaran apa pun yang mendukung QRIS.</p>
+                        </div>
+                      )}
+
+                      {metode === "transfer" && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-gray-900">Pilih bank ({BANK.length} bank tersedia)</p>
+                          <input value={cari} onChange={(e) => setCari(e.target.value)} placeholder="Cari bank, misalnya BCA atau Jago"
+                            className="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+                          <div className="max-h-52 space-y-1 overflow-y-auto rounded-xl border border-gray-200 p-1">
+                            {bankTampil.length === 0 && <p className="p-3 text-sm text-gray-500">Bank tidak ditemukan.</p>}
+                            {bankTampil.map((nama) => (
+                              <button key={nama} onClick={() => setChannel(nama)}
+                                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm ${channel === nama ? "bg-indigo-600 text-white" : "text-gray-800 hover:bg-indigo-50"}`}>
+                                <span>{nama}</span>
+                                {channel === nama && <span>✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                          {channel && (
+                            <div className="rounded-xl bg-indigo-50 p-3 text-sm">
+                              <p className="text-xs text-gray-500">Transfer ke Virtual Account {channel}</p>
+                              <p className="mt-1 font-mono text-lg font-bold tracking-wider text-indigo-700">{vaDari(b.id)}</p>
+                              <p className="mt-1 text-xs text-gray-500">Nomor VA simulasi, bukan rekening asli. Jumlah: {rupiah(b.total_harga)}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {metode === "e_wallet" && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-gray-900">Pilih e-wallet</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            {EWALLET.map((nama) => (
+                              <button key={nama} onClick={() => setChannel(nama)}
+                                className={`flex items-center gap-2 rounded-xl border-2 p-3 text-left text-sm font-semibold ${channel === nama ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-gray-200 text-gray-800"}`}>
+                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
+                                  {nama.charAt(0)}
+                                </span>
+                                {nama}
+                              </button>
+                            ))}
+                          </div>
+                          {channel && (
+                            <div className="rounded-xl bg-indigo-50 p-3 text-sm">
+                              <p>Buka aplikasi <span className="font-bold">{channel}</span>, lalu setujui pembayaran {rupiah(b.total_harga)}.</p>
+                              <p className="mt-1 text-xs text-gray-500">Simulasi: tidak ada aplikasi yang benar-benar dibuka.</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-700">
                         Mode simulasi: tidak ada uang sungguhan yang dipotong.
                       </p>
@@ -190,9 +295,9 @@ export default function BookingSaya() {
                         <button onClick={() => setBayarId(null)} className="w-1/3 rounded-xl bg-gray-100 py-3 font-semibold text-gray-700 hover:bg-gray-200">
                           Batal
                         </button>
-                        <button disabled={memproses} onClick={() => bayar(b.id)}
-                          className="w-2/3 rounded-xl bg-emerald-600 py-3 font-semibold text-white shadow hover:bg-emerald-700 disabled:opacity-60">
-                          {memproses ? "Memproses..." : `Bayar ${rupiah(b.total_harga)}`}
+                        <button disabled={memproses || !siapBayar} onClick={() => bayar(b.id)}
+                          className="w-2/3 rounded-xl bg-emerald-600 py-3 font-semibold text-white shadow hover:bg-emerald-700 disabled:opacity-50">
+                          {memproses ? "Memproses..." : siapBayar ? `Bayar ${rupiah(b.total_harga)}` : "Pilih dulu"}
                         </button>
                       </div>
                     </div>
