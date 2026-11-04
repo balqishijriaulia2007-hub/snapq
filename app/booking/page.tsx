@@ -23,13 +23,14 @@ const menitSekarang = () => {
 
 export default function Booking() {
   const router = useRouter();
-  const hariIni = tgl(new Date());
-  const batas = tgl(new Date(Date.now() + 30 * 86400000));
 
+  const [hariIni, setHariIni] = useState("");
+  const [batas, setBatas] = useState("");
+  const [sekarang, setSekarang] = useState(0);
   const [paket, setPaket] = useState<Paket[]>([]);
   const [tambahan, setTambahan] = useState<Tambahan[]>([]);
   const [paketId, setPaketId] = useState("");
-  const [tanggal, setTanggal] = useState(hariIni);
+  const [tanggal, setTanggal] = useState("");
   const [mulai, setMulai] = useState<number | null>(null);
   const [tWaktu, setTWaktu] = useState(0);
   const [tCetak, setTCetak] = useState(0);
@@ -40,6 +41,12 @@ export default function Booking() {
   const [hasil, setHasil] = useState<Hasil | null>(null);
 
   useEffect(() => {
+    const d = tgl(new Date());
+    setHariIni(d);
+    setTanggal(d);
+    setBatas(tgl(new Date(Date.now() + 30 * 86400000)));
+    setSekarang(menitSekarang());
+
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) router.push("/masuk");
     });
@@ -58,6 +65,8 @@ export default function Booking() {
   }, [router]);
 
   useEffect(() => {
+    if (!tanggal) return;
+    setSekarang(menitSekarang());
     supabase.rpc("slot_terisi", { p_tanggal: tanggal }).then(({ data }) => {
       setTerisi((data as Terisi[]) ?? []);
     });
@@ -70,7 +79,6 @@ export default function Booking() {
   const total = terpilih ? terpilih.harga + tWaktu * hargaWaktu + tCetak * hargaCetak : 0;
 
   const slot = useMemo(() => {
-    const sekarang = menitSekarang();
     const daftar: { s: number; kosong: boolean }[] = [];
     for (let s = 600; s + lama <= 1260; s += 15) {
       const bentrok = terisi.some((t) => s < t.menit_selesai && s + lama > t.menit_mulai);
@@ -78,7 +86,7 @@ export default function Booking() {
       daftar.push({ s, kosong: !bentrok && !lewat });
     }
     return daftar;
-  }, [terisi, lama, tanggal, hariIni]);
+  }, [terisi, lama, tanggal, hariIni, sekarang]);
 
   async function kirim() {
     if (!terpilih || mulai === null) return;
