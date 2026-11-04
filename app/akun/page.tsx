@@ -26,9 +26,16 @@ export default function Akun() {
 
   return (
     <AuthCard judul={`Halo, ${nama || "pelanggan"}`} subjudul={email}>
-      <button onClick={keluar} className="w-full rounded-xl bg-red-500 py-3 font-semibold text-white shadow hover:bg-red-600">
-        Keluar
-      </button>
-    </AuthCard>
+      <div className="space-y-3">
+        <a href="/booking" className="block w-full rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white shadow hover:bg-indigo-700">
+          Booking Sesi Foto
+        </a>
+        <a href="/booking-saya" className="block w-full rounded-xl bg-indigo-50 py-3 text-center font-semibold text-indigo-600 hover:bg-indigo-100">
+          Booking Saya
+        </a>
+        <button onClick={keluar} className="w-full rounded-xl bg-red-500 py-3 font-semibold text-white shadow hover:bg-red-600">
+          Keluar
+        </button>
+      </div>
   );
 }

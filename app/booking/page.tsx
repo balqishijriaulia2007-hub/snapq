@@ -133,7 +133,7 @@ export default function Booking() {
           <button onClick={() => { setHasil(null); setMulai(null); }} className="mt-5 w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white shadow hover:bg-indigo-700">
             Booking Lagi
           </button>
-          <Link href="/layanan" className="mt-3 block text-sm font-semibold text-indigo-600 hover:underline">Lihat daftar harga</Link>
+          <Link href="/booking-saya" className="mt-3 block text-sm font-semibold text-indigo-600 hover:underline">Lihat nomor antrean saya</Link>
         </div>
       </main>
     );
