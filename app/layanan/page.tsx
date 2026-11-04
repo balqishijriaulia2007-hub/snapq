@@ -39,9 +39,14 @@ export default function Layanan() {
             <h1 className="text-2xl font-bold text-gray-900">Daftar Harga</h1>
             <p className="text-sm text-gray-500">Setiap hari, 10.00 - 21.00</p>
           </div>
-          <Link href="/akun" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow hover:bg-indigo-50">
-            Akun
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/booking" className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-700">
+              Booking
+            </Link>
+            <Link href="/akun" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow hover:bg-indigo-50">
+              Akun
+            </Link>
+          </div>
         </div>
 
         {loading && <p className="text-gray-500">Memuat daftar harga...</p>}
