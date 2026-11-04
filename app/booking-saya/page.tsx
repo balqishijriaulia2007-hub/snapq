@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
+import { unduhTiket } from "@/lib/tiket";
+ 
 type Item = {
   id: string;
   tanggal: string;
@@ -20,7 +21,7 @@ type Item = {
   nomor_berjalan: number | null;
   batas_bayar: string;
 };
-
+ 
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 const jam = (m: number) =>
   `${String(Math.floor(m / 60)).padStart(2, "0")}.${String(m % 60).padStart(2, "0")}`;
@@ -32,7 +33,7 @@ const vaDari = (id: string) => {
   const d = "8808" + id.replace(/\D/g, "").padEnd(12, "0").slice(0, 12);
   return d.match(/.{1,4}/g)?.join(" ") ?? d;
 };
-
+ 
 const STATUS: Record<string, { label: string; warna: string }> = {
   menunggu_pembayaran: { label: "Menunggu pembayaran", warna: "bg-amber-100 text-amber-700" },
   lunas: { label: "Lunas, siap dilayani", warna: "bg-emerald-100 text-emerald-700" },
@@ -40,18 +41,18 @@ const STATUS: Record<string, { label: string; warna: string }> = {
   selesai: { label: "Selesai", warna: "bg-gray-100 text-gray-600" },
   tidak_hadir: { label: "Tidak hadir", warna: "bg-red-100 text-red-600" },
 };
-
+ 
 const METODE = [
   { kode: "qris", label: "QRIS", ikon: "📱" },
   { kode: "transfer", label: "Transfer Bank", ikon: "🏦" },
   { kode: "e_wallet", label: "E-Wallet", ikon: "👛" },
 ];
-
+ 
 const EWALLET = [
   "GoPay", "OVO", "DANA", "ShopeePay", "LinkAja",
   "Sakuku (BCA)", "Jenius Pay", "i.saku", "DOKU Wallet", "AstraPay",
 ];
-
+ 
 const BANK = [
   "Bank Mandiri", "Bank BRI", "Bank BNI", "Bank BTN", "Bank Syariah Indonesia (BSI)",
   "Bank BCA", "Bank CIMB Niaga", "Bank Danamon", "Bank Permata", "Bank OCBC",
@@ -73,7 +74,7 @@ const BANK = [
   "Bank SulutGo", "Bank Sultra", "Bank BPD Bali", "Bank NTB Syariah", "Bank NTT",
   "Bank Maluku Malut", "Bank Papua", "Bank Jambi", "Bank Bengkulu", "Bank Aceh Syariah",
 ];
-
+ 
 export default function BookingSaya() {
   const router = useRouter();
   const [data, setData] = useState<Item[]>([]);
@@ -85,7 +86,7 @@ export default function BookingSaya() {
   const [cari, setCari] = useState("");
   const [memproses, setMemproses] = useState(false);
   const [pesanBayar, setPesanBayar] = useState("");
-
+ 
   const muat = useCallback(async () => {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) {
@@ -100,20 +101,20 @@ export default function BookingSaya() {
     }
     setLoading(false);
   }, [router]);
-
+ 
   useEffect(() => {
     muat();
     const t = setInterval(muat, 5000);
     return () => clearInterval(t);
   }, [muat]);
-
+ 
   function gantiMetode(kode: string) {
     setMetode(kode);
     setChannel("");
     setCari("");
     setPesanBayar("");
   }
-
+ 
   async function bayar(id: string) {
     setMemproses(true);
     setPesanBayar("");
@@ -130,10 +131,10 @@ export default function BookingSaya() {
     setBayarId(null);
     muat();
   }
-
+ 
   const bankTampil = BANK.filter((b) => b.toLowerCase().includes(cari.trim().toLowerCase()));
   const siapBayar = metode === "qris" || channel !== "";
-
+ 
   return (
     <main className="min-h-screen bg-linear-to-br from-indigo-100 via-purple-50 to-pink-100 p-4 sm:p-8">
       <div className="mx-auto max-w-2xl">
@@ -152,7 +153,7 @@ export default function BookingSaya() {
             </Link>
           </div>
         </div>
-
+ 
         {loading && <p className="text-gray-500">Memuat...</p>}
         {pesan && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{pesan}</p>}
         {!loading && !pesan && data.length === 0 && (
@@ -163,7 +164,7 @@ export default function BookingSaya() {
             </Link>
           </div>
         )}
-
+ 
         <div className="space-y-4">
           {data.map((b) => {
             const s = STATUS[b.status] ?? { label: b.status, warna: "bg-gray-100 text-gray-600" };
@@ -194,7 +195,7 @@ export default function BookingSaya() {
                     </p>
                   )}
                   <p className="pt-1 text-lg font-bold text-indigo-600">{rupiah(b.total_harga)}</p>
-
+ 
                   {aktif && (
                     <div className="mt-3 rounded-xl bg-indigo-50 p-3 text-sm">
                       <p>
@@ -206,7 +207,16 @@ export default function BookingSaya() {
                       </p>
                     </div>
                   )}
-
+ 
+                  {(b.status === "lunas" || b.status === "berlangsung") && (
+                    <button
+                      onClick={() => unduhTiket(b)}
+                      className="mt-3 w-full rounded-xl bg-emerald-600 py-3 font-semibold text-white shadow hover:bg-emerald-700"
+                    >
+                      Unduh Tiket PDF
+                    </button>
+                  )}
+ 
                   {belumBayar && bayarId !== b.id && (
                     <div className="mt-3">
                       <p className="mb-2 text-xs text-amber-700">Bayar sebelum pukul {jamIso(b.batas_bayar)}, atau booking otomatis dibatalkan.</p>
@@ -216,7 +226,7 @@ export default function BookingSaya() {
                       </button>
                     </div>
                   )}
-
+ 
                   {belumBayar && bayarId === b.id && (
                     <div className="mt-3 space-y-3 rounded-xl border-2 border-indigo-200 p-4">
                       <p className="font-semibold text-gray-900">Pilih metode pembayaran</p>
@@ -229,7 +239,7 @@ export default function BookingSaya() {
                           </button>
                         ))}
                       </div>
-
+ 
                       {metode === "qris" && (
                         <div className="rounded-xl bg-gray-50 p-4 text-center">
                           <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-5xl">
@@ -238,7 +248,7 @@ export default function BookingSaya() {
                           <p className="mt-2 text-xs text-gray-500">QR simulasi. Scan lewat aplikasi pembayaran apa pun yang mendukung QRIS.</p>
                         </div>
                       )}
-
+ 
                       {metode === "transfer" && (
                         <div className="space-y-2">
                           <p className="text-sm font-semibold text-gray-900">Pilih bank ({BANK.length} bank tersedia)</p>
@@ -263,7 +273,7 @@ export default function BookingSaya() {
                           )}
                         </div>
                       )}
-
+ 
                       {metode === "e_wallet" && (
                         <div className="space-y-2">
                           <p className="text-sm font-semibold text-gray-900">Pilih e-wallet</p>
@@ -286,7 +296,7 @@ export default function BookingSaya() {
                           )}
                         </div>
                       )}
-
+ 
                       <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-700">
                         Mode simulasi: tidak ada uang sungguhan yang dipotong.
                       </p>
