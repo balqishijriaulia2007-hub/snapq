@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 const MENU = [
-  { ikon: "🎟", judul: "Antrean Hari Ini", isi: "Panggil pelanggan dan ubah status sesi" },
-  { ikon: "🔍", judul: "Verifikasi Tiket", isi: "Scan QR atau masukkan kode tiket" },
-  { ikon: "🛠", judul: "Kelola Layanan", isi: "Atur paket, harga, dan tambahan" },
-  { ikon: "📊", judul: "Laporan", isi: "Harian, mingguan, dan bulanan" },
+  { ikon: "🎟", judul: "Antrean Hari Ini", isi: "Panggil pelanggan dan ubah status sesi", href: "/admin/antrean" },
+  { ikon: "🔍", judul: "Verifikasi Tiket", isi: "Scan QR atau masukkan kode tiket", href: "" },
+  { ikon: "🛠", judul: "Kelola Layanan", isi: "Atur paket, harga, dan tambahan", href: "" },
+  { ikon: "📊", judul: "Laporan", isi: "Harian, mingguan, dan bulanan", href: "" },
 ];
 
 export default function Admin() {
@@ -63,14 +64,22 @@ export default function Admin() {
           </button>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          {MENU.map((m) => (
-            <div key={m.judul} className="rounded-2xl bg-white p-6 opacity-70 shadow-lg">
-              <div className="text-3xl">{m.ikon}</div>
-              <h2 className="mt-2 text-lg font-bold text-gray-900">{m.judul}</h2>
-              <p className="text-sm text-gray-500">{m.isi}</p>
-              <p className="mt-2 text-xs font-semibold text-amber-600">Segera hadir</p>
-            </div>
-          ))}
+          {MENU.map((m) =>
+            m.href ? (
+              <Link key={m.judul} href={m.href} className="rounded-2xl bg-white p-6 shadow-lg hover:ring-2 hover:ring-indigo-400">
+                <div className="text-3xl">{m.ikon}</div>
+                <h2 className="mt-2 text-lg font-bold text-gray-900">{m.judul}</h2>
+                <p className="text-sm text-gray-500">{m.isi}</p>
+              </Link>
+            ) : (
+              <div key={m.judul} className="rounded-2xl bg-white p-6 opacity-70 shadow-lg">
+                <div className="text-3xl">{m.ikon}</div>
+                <h2 className="mt-2 text-lg font-bold text-gray-900">{m.judul}</h2>
+                <p className="text-sm text-gray-500">{m.isi}</p>
+                <p className="mt-2 text-xs font-semibold text-amber-600">Segera hadir</p>
+              </div>
+            )
+          )}
         </div>
       </div>
     </main>
