@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 
 const MENU = [
   { ikon: "🎟", judul: "Antrean Hari Ini", isi: "Panggil pelanggan dan ubah status sesi", href: "/admin/antrean" },
-  { ikon: "🔍", judul: "Verifikasi Tiket", isi: "Scan QR atau masukkan kode tiket", href: "" },
+  { ikon: "🔍", judul: "Verifikasi Tiket", isi: "Scan QR atau masukkan kode tiket", href: "/admin/verifikasi" },
   { ikon: "🛠", judul: "Kelola Layanan", isi: "Atur paket, harga, dan tambahan", href: "" },
   { ikon: "📊", judul: "Laporan", isi: "Harian, mingguan, dan bulanan", href: "" },
 ];
