@@ -9,6 +9,7 @@ const MENU = [
   { ikon: "🔍", judul: "Verifikasi Tiket", isi: "Scan QR atau masukkan kode tiket", href: "/admin/verifikasi" },
   { ikon: "🛠", judul: "Kelola Layanan", isi: "Atur paket, harga, dan tambahan", href: "/admin/layanan" },
   { ikon: "📊", judul: "Laporan", isi: "Harian, mingguan, dan bulanan", href: "/admin/laporan" },
+  { ikon: "🎁", judul: "Voucher & Membership", isi: "Kode promo dan tingkat member", href: "/admin/voucher" },
 ];
 
 export default function Admin() {
