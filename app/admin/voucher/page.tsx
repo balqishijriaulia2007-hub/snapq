@@ -114,7 +114,7 @@ export default function AdminVoucher() {
     setTimeout(() => setOk(""), 3000);
   }
 
-  async function simpanVoucher(f: Form_V) {
+  async function simpanVoucher(f: FormV) {
     const nilai = Number(f.nilai);
     if (!/^[A-Za-z0-9_-]{3,20}$/.test(f.kode.trim())) return setPesan("Kode 3 sampai 20 karakter: huruf, angka, strip, atau garis bawah.");
     if (!Number.isInteger(nilai) || nilai <= 0) return setPesan("Nilai harus angka bulat lebih dari 0.");
