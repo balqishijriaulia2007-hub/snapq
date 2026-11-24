@@ -8,7 +8,7 @@ Dokumen hasil pengujian aplikasi **SnapQ**, web booking studio foto dengan antre
 | **URL yang diuji** | https://snapq-u13t.vercel.app/ |
 | **Penguji** | Siska (bagian Pengujian) |
 | **Tim** | Anggina (dokumentasi dan konfigurasi), Siska (pengujian), Balqis (developer utama) |
-| **Tanggal pengujian pelanggan** | 22 dan 23 November 2026 |
+| **Tanggal pengujian pelanggan** | 22 sampai 24 November 2026 |
 | **Tanggal pengujian admin** | 6 November 2026 (memakai akun admin dari developer) |
 | **Tanggal UAT** | 22 November 2026 |
 | **Perangkat dan browser** | Laptop Windows 11, Microsoft Edge |
@@ -33,9 +33,9 @@ Dokumen hasil pengujian aplikasi **SnapQ**, web booking studio foto dengan antre
 | Aspek | Hasil |
 |---|---|
 | Test case yang dirancang | 38 (pelanggan dan admin) |
-| Test case dieksekusi | 22 (17 berhasil penuh, 5 berhasil sebagian) |
+| Test case dieksekusi | 26 (20 berhasil penuh, 6 berhasil sebagian) |
 | Test case gagal | 0 |
-| Test case belum dieksekusi | 16 |
+| Test case belum dieksekusi | 12 |
 | Bug ditemukan | 0 |
 | Ukuran kode | 2,83 KLOC |
 | Defect density | 0,00 bug per KLOC |
@@ -83,7 +83,7 @@ Pengujian memakai data uji, bukan data pribadi yang penting.
 | ⬜ | Belum dieksekusi: belum ada bukti |
 | ❌ | Gagal |
 
-Kolom **Bukti** berisi nomor awal nama file screenshot. Contoh `04` berarti file `04-form-daftar-terisi.png`. Seluruh file ada di [Lampiran A](#lampiran-a-daftar-file-bukti).
+Rincian prasyarat, data uji, dan langkah tiap skenario ada di [`TEST-CASE.md`](TEST-CASE.md). Kolom **Bukti** berisi nomor awal nama file screenshot. Contoh `04` berarti file `04-form-daftar-terisi.png`. Seluruh file ada di [Lampiran A](#lampiran-a-daftar-file-bukti).
 
 ## 5. Test Case dan Hasil
 
@@ -93,17 +93,18 @@ Kolom **Bukti** berisi nomor awal nama file screenshot. Contoh `04` berarti file
 |---|---|---|---|---|---|
 | **TC-01** | Daftar akun baru: buka `/daftar`, isi nama, nomor HP, email, password (min. 6 karakter), klik Daftar | Akun terbuat dan pengguna masuk ke halaman Akun | Akun terbuat dan langsung masuk ke halaman Akun, tampil sapaan "Halo, sissy" | ✅ | 03, 04, 05 |
 | **TC-02** | Daftar memakai email yang sudah terdaftar | Muncul pesan error, akun tidak ganda | Muncul pesan "User already registered" di atas tombol Daftar, akun tidak terbuat lagi | ✅ | 29, 30 |
-| **TC-03** | Daftar dengan password kurang dari 6 karakter | Form menolak | - | ⬜ | - |
+| **TC-03** | Daftar dengan password kurang dari 6 karakter | Form menolak | Form terisi dengan nama, nomor HP, dan email yang valid, serta password 5 karakter. Hasil penolakan setelah tombol Daftar ditekan belum terfoto | 🟡 | 53 |
 | **TC-04** | Login di `/masuk` dengan email dan password benar | Masuk ke halaman Akun | Form login terisi dengan email akun uji. Halaman Akun menampilkan sapaan nama pengguna serta tombol Booking Sesi Foto, Booking Saya, dan Keluar. Foto saat tombol Masuk ditekan belum ada | 🟡 | 02, 48, 05 |
 | **TC-05** | Login dengan password salah | Muncul "Email atau kata sandi salah." | Muncul "Email atau kata sandi salah." dan pengguna tetap di halaman login | ✅ | 32 |
-| **TC-06** | Klik tombol Keluar di halaman Akun | Kembali ke `/masuk` | - | ⬜ | 31 (halaman Akun saja) |
-| **TC-07** | Buka `/booking` tanpa login | Diarahkan ke `/masuk` | - | ⬜ | - |
+| **TC-06** | Klik tombol Keluar di halaman Akun | Kembali ke `/masuk` | Setelah tombol Keluar ditekan, pengguna kembali ke halaman login `/masuk` | ✅ | 31, 50 |
+| **TC-07** | Buka `/booking` tanpa login | Diarahkan ke `/masuk` | Membuka `/booking` tanpa login mengarahkan pengguna ke halaman login `/masuk`. Alamat `/booking` yang diketik tidak ikut terfoto | ✅ | 52 |
 
 <table>
 <tr><td align="center" width="50%"><img src="docs/screenshots/pelanggan/04-form-daftar-terisi.png" width="420" alt="Form daftar terisi"><br><sub><b>04</b> Form daftar terisi</sub></td><td align="center" width="50%"><img src="docs/screenshots/pelanggan/05-akun-setelah-daftar.png" width="420" alt="Halaman Akun setelah daftar"><br><sub><b>05</b> Halaman Akun setelah daftar</sub></td></tr>
 <tr><td align="center" width="50%"><img src="docs/screenshots/pelanggan/29-daftar-email-sudah-terdaftar.png" width="420" alt="Daftar dengan email yang sudah terdaftar"><br><sub><b>29</b> Daftar dengan email yang sudah terdaftar</sub></td><td align="center" width="50%"><img src="docs/screenshots/pelanggan/30-daftar-email-sudah-terdaftar-2.png" width="420" alt="Daftar dengan email yang sudah terdaftar (akun uji lain)"><br><sub><b>30</b> Daftar dengan email yang sudah terdaftar (akun uji lain)</sub></td></tr>
 <tr><td align="center" width="50%"><img src="docs/screenshots/pelanggan/02-halaman-masuk-pelanggan.png" width="420" alt="Halaman login pelanggan (form kosong)"><br><sub><b>02</b> Halaman login pelanggan (form kosong)</sub></td><td align="center" width="50%"><img src="docs/screenshots/pelanggan/48-login-terisi-sebelum-masuk.png" width="420" alt="Form login terisi sebelum klik Masuk"><br><sub><b>48</b> Form login terisi sebelum klik Masuk</sub></td></tr>
-<tr><td align="center" width="50%"><img src="docs/screenshots/pelanggan/32-login-password-salah.png" width="420" alt="Login dengan password salah"><br><sub><b>32</b> Login dengan password salah</sub></td><td></td></tr>
+<tr><td align="center" width="50%"><img src="docs/screenshots/pelanggan/32-login-password-salah.png" width="420" alt="Login dengan password salah"><br><sub><b>32</b> Login dengan password salah</sub></td><td align="center" width="50%"><img src="docs/screenshots/pelanggan/53-daftar-password-pendek.png" width="420" alt="Form daftar dengan password 5 karakter"><br><sub><b>53</b> Form daftar dengan password 5 karakter</sub></td></tr>
+<tr><td align="center" width="50%"><img src="docs/screenshots/pelanggan/50-setelah-keluar.png" width="420" alt="Halaman login setelah keluar"><br><sub><b>50</b> Halaman login setelah keluar</sub></td><td align="center" width="50%"><img src="docs/screenshots/pelanggan/52-dialihkan-ke-login.png" width="420" alt="Halaman login setelah membuka /booking tanpa login"><br><sub><b>52</b> Halaman login setelah membuka /booking tanpa login</sub></td></tr>
 </table>
 
 ### 5.2 Layanan, Paket, dan Jadwal
@@ -158,7 +159,7 @@ Kolom **Bukti** berisi nomor awal nama file screenshot. Contoh `04` berarti file
 | ID | Skenario | Hasil yang diharapkan | Hasil aktual | Status | Bukti |
 |---|---|---|---|---|---|
 | **TC-23** | Login di `/admin/masuk` dengan akun admin | Masuk ke dashboard admin | Masuk ke dashboard: Antrean Hari Ini, Verifikasi Tiket, Kelola Layanan, Laporan, Voucher & Membership | ✅ | 14, 15, 16 |
-| **TC-24** | Login admin memakai akun pelanggan | Ditolak: "Akun ini bukan akun admin." | - | ⬜ | 44 (kredensial salah, bukan akun pelanggan yang benar) |
+| **TC-24** | Login admin memakai akun pelanggan | Ditolak: "Akun ini bukan akun admin." | Login di `/admin/masuk` dengan akun pelanggan yang benar ditolak dengan pesan "Akun ini bukan akun admin." dan tidak masuk ke dashboard | ✅ | 54 |
 | **TC-25** | Verifikasi Tiket: masukkan kode tiket | Status tiket dan detail booking tampil | Tiket lunas tampil "Tiket valid, siap dipakai" lengkap dengan detail. Tiket yang sesinya berjalan tampil "Sesi ini sedang berlangsung" | ✅ | 20, 22, 23 |
 | **TC-26** | Antrean: Panggil, Mulai sesi, Selesai | Status berubah berurutan | Status berubah dari "Lunas, menunggu giliran" ke "Dipanggil" lalu "Sedang berlangsung", dan tombol Selesai muncul. Tampilan di sisi pelanggan tidak ikut difoto | ✅ | 17, 18, 19 |
 | **TC-27** | Antrean: batalkan booking yang belum dibayar | Booking batal, jam dibuka lagi | - | ⬜ | 17 (tombol Batalkan tampil saja) |
@@ -171,7 +172,7 @@ Kolom **Bukti** berisi nomor awal nama file screenshot. Contoh `04` berarti file
 <tr><td align="center" width="50%"><img src="docs/screenshots/admin/19-admin-antrean-sedang-berlangsung.png" width="420" alt="Antrean: sesi sedang berlangsung"><br><sub><b>19</b> Antrean: sesi sedang berlangsung</sub></td><td align="center" width="50%"><img src="docs/screenshots/admin/20-admin-verifikasi-tiket.png" width="420" alt="Verifikasi Tiket (kosong)"><br><sub><b>20</b> Verifikasi Tiket (kosong)</sub></td></tr>
 <tr><td align="center" width="50%"><img src="docs/screenshots/admin/22-admin-tiket-valid.png" width="420" alt="Verifikasi Tiket: tiket valid"><br><sub><b>22</b> Verifikasi Tiket: tiket valid</sub></td><td align="center" width="50%"><img src="docs/screenshots/admin/23-admin-tiket-sedang-berlangsung.png" width="420" alt="Verifikasi Tiket: sesi sedang berlangsung"><br><sub><b>23</b> Verifikasi Tiket: sesi sedang berlangsung</sub></td></tr>
 <tr><td align="center" width="50%"><img src="docs/screenshots/admin/25-admin-laporan-harian.png" width="420" alt="Laporan harian"><br><sub><b>25</b> Laporan harian</sub></td><td align="center" width="50%"><img src="docs/screenshots/admin/26-admin-laporan-bulanan.png" width="420" alt="Laporan bulanan"><br><sub><b>26</b> Laporan bulanan</sub></td></tr>
-<tr><td align="center" width="50%"><img src="docs/screenshots/admin/44-admin-login-kredensial-salah.png" width="420" alt="Login admin dengan kredensial salah"><br><sub><b>44</b> Login admin dengan kredensial salah</sub></td><td></td></tr>
+<tr><td align="center" width="50%"><img src="docs/screenshots/admin/44-admin-login-kredensial-salah.png" width="420" alt="Login admin dengan kredensial salah"><br><sub><b>44</b> Login admin dengan kredensial salah</sub></td><td align="center" width="50%"><img src="docs/screenshots/admin/54-admin-login-akun-pelanggan-ditolak.png" width="420" alt="Login admin dengan akun pelanggan ditolak"><br><sub><b>54</b> Login admin dengan akun pelanggan ditolak</sub></td></tr>
 </table>
 
 ### 5.6 Pengelolaan Layanan, Voucher, dan Membership
@@ -198,17 +199,17 @@ Kolom **Bukti** berisi nomor awal nama file screenshot. Contoh `04` berarti file
 | Keterangan | Jumlah |
 |---|---|
 | Total test case | 38 |
-| ✅ Berhasil | 17 |
-| 🟡 Sebagian | 5 |
-| ⬜ Belum dieksekusi | 16 |
+| ✅ Berhasil | 20 |
+| 🟡 Sebagian | 6 |
+| ⬜ Belum dieksekusi | 12 |
 | ❌ Gagal | 0 |
-| Persentase berhasil penuh dari yang dieksekusi | 17 dari 22 (77.3%) |
+| Persentase berhasil penuh dari yang dieksekusi | 20 dari 26 (76.9%) |
 
 **Ukuran kode:** 2.832 baris (2,83 KLOC), dihitung dari seluruh file `.ts` dan `.tsx` di folder `app`, `components`, dan `lib` pada kode yang diunggah. Baris kosong ikut terhitung.
 
 **Defect density** = jumlah bug ÷ ukuran kode (KLOC) = 0 ÷ 2,83 = **0,00 bug per KLOC**.
 
-Angka ini berlaku untuk 22 test case yang sudah dieksekusi. Jika ada bug baru dari test case yang belum dieksekusi atau perubahan kode, nilainya dihitung ulang. Perintah untuk menghitung ulang ukuran kode, dijalankan di folder proyek:
+Angka ini berlaku untuk 26 test case yang sudah dieksekusi. Jika ada bug baru dari test case yang belum dieksekusi atau perubahan kode, nilainya dihitung ulang. Perintah untuk menghitung ulang ukuran kode, dijalankan di folder proyek:
 
 ```bash
 find app components lib -name "*.ts" -o -name "*.tsx" | xargs wc -l
@@ -216,7 +217,7 @@ find app components lib -name "*.ts" -o -name "*.tsx" | xargs wc -l
 
 ## 7. Bug Log
 
-Tidak ada bug yang ditemukan dari 22 test case yang sudah dieksekusi.
+Tidak ada bug yang ditemukan dari 26 test case yang sudah dieksekusi.
 
 | ID Bug | Test case | Deskripsi | Langkah mengulang | Keparahan | Status |
 |---|---|---|---|---|---|
@@ -298,10 +299,10 @@ Batasan: jumlah responden hanya 6 dan seluruhnya diminta mencoba langsung, sehin
 
 ## 9. Kesimpulan dan Rekomendasi
 
-- **Hasil pengujian fungsional:** dari 38 test case yang dirancang, 22 sudah dieksekusi (17 berhasil penuh, 5 sebagian) dan tidak ada yang gagal. Sebanyak 16 test case belum dieksekusi, terutama pengelolaan layanan dan voucher di sisi admin yang mengubah data bersama.
+- **Hasil pengujian fungsional:** dari 38 test case yang dirancang, 26 sudah dieksekusi (20 berhasil penuh, 6 sebagian) dan tidak ada yang gagal. Sebanyak 12 test case belum dieksekusi, terutama pengelolaan layanan dan voucher di sisi admin yang mengubah data bersama, serta beberapa validasi di sisi pelanggan.
 - **Bug:** belum ada bug yang tercatat. Defect density 0,00 bug per KLOC.
 - **UAT:** penerimaan pengguna baik (lihat bagian 8.6).
-- **Keterbatasan:** scan QR lewat kamera, unduhan tiket PDF, laporan mingguan, dan skenario jam bentrok antarakun belum dibuktikan.
+- **Keterbatasan:** scan QR lewat kamera, unduhan tiket PDF, laporan mingguan, penolakan password pendek saat mendaftar, dan skenario jam bentrok antarakun belum dibuktikan.
 - **Rekomendasi pengembangan:** tambah fitur reset password, notifikasi pengingat jadwal foto, dan penyempurnaan tampilan.
 - **Rekomendasi pengujian lanjutan:** lengkapi test case yang masih berstatus ⬜ dan 🟡, lalu hitung ulang rekap dan defect density.
 
@@ -344,6 +345,9 @@ Semua file ada di folder `docs/screenshots/`.
 | 42 | `42-booking-saya-lunas-akun-kedua.png` | Booking Saya lunas (akun kedua) |
 | 43 | `43-tiket-qr-akun-kedua.png` | Tiket dengan QR Code (akun kedua) |
 | 48 | `48-login-terisi-sebelum-masuk.png` | Form login terisi sebelum klik Masuk |
+| 50 | `50-setelah-keluar.png` | Halaman login setelah keluar |
+| 52 | `52-dialihkan-ke-login.png` | Halaman login setelah membuka /booking tanpa login |
+| 53 | `53-daftar-password-pendek.png` | Form daftar dengan password 5 karakter |
 
 **Folder `admin/`**
 
@@ -365,6 +369,7 @@ Semua file ada di folder `docs/screenshots/`.
 | 27 | `27-admin-voucher-membership.png` | Voucher dan Membership |
 | 28 | `28-admin-tingkat-membership.png` | Tingkat membership dan daftar pelanggan |
 | 44 | `44-admin-login-kredensial-salah.png` | Login admin dengan kredensial salah |
+| 54 | `54-admin-login-akun-pelanggan-ditolak.png` | Login admin dengan akun pelanggan ditolak |
 
 **Folder `uat/`**: 14 file hasil Google Form (nama berawalan `uat-`), seluruhnya ditampilkan di bagian 8.5.
 
@@ -372,6 +377,7 @@ Semua file ada di folder `docs/screenshots/`.
 
 ```
 PANDUAN-PENGUJIAN.md
+TEST-CASE.md
 docs/
 └── screenshots/
     ├── pelanggan/   screenshot pengujian sisi pelanggan
